@@ -1,0 +1,15 @@
+/* Minimal codicon fallback — uses text glyphs when the codicon font isn't available.
+   For a production build, replace with the real @vscode/codicons package. */
+.codicon { font-family: "codicon", -apple-system, system-ui, monospace; font-style: normal; display: inline-block; line-height: 1; vertical-align: middle; }
+.codicon::before { content: "•"; }
+.codicon-flame::before         { content: "🔥"; }
+.codicon-pulse::before         { content: "◐"; }
+.codicon-list-flat::before     { content: "≡"; }
+.codicon-graph::before         { content: "▦"; }
+.codicon-settings-gear::before { content: "⚙"; }
+.codicon-refresh::before       { content: "↻"; }
+.codicon-folder-opened::before { content: "▸"; }
+.codicon-lightbulb::before     { content: "💡"; }
+.codicon-target::before        { content: "◎"; }
+.codicon-warning::before       { content: "⚠"; }
+.codicon-info::before          { content: "ⓘ"; }

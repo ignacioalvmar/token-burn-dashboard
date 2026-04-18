@@ -1,0 +1,90 @@
+{
+  "name": "token-burn",
+  "displayName": "Token Burn — Session Visualizer",
+  "description": "Live dashboard of token usage and cost in your Cursor / VS Code AI chat sessions.",
+  "version": "0.1.0",
+  "publisher": "you",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Visualization", "Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "tokenBurn.open",
+        "title": "Token Burn: Open Dashboard",
+        "icon": "$(flame)"
+      },
+      {
+        "command": "tokenBurn.refresh",
+        "title": "Token Burn: Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "tokenBurn.reveal",
+        "title": "Token Burn: Reveal Log File",
+        "icon": "$(folder-opened)"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        { "command": "tokenBurn.open" },
+        { "command": "tokenBurn.refresh" },
+        { "command": "tokenBurn.reveal" }
+      ]
+    },
+    "configuration": {
+      "title": "Token Burn",
+      "properties": {
+        "tokenBurn.budget.sessionUSD": {
+          "type": "number",
+          "default": 2.00,
+          "description": "Soft budget per session in USD. Warnings fire at 75% and 100%."
+        },
+        "tokenBurn.budget.dailyUSD": {
+          "type": "number",
+          "default": 20.00,
+          "description": "Soft daily budget in USD."
+        },
+        "tokenBurn.pollIntervalMs": {
+          "type": "number",
+          "default": 2500,
+          "description": "How often to re-scan Cursor chat logs for new messages (ms)."
+        },
+        "tokenBurn.logPathOverride": {
+          "type": "string",
+          "default": "",
+          "description": "Optional absolute path to Cursor's state.vscdb (chat log SQLite). Leave blank to auto-discover."
+        },
+        "tokenBurn.pricing": {
+          "type": "object",
+          "default": {
+            "claude-haiku-4-5":  { "in": 1.00,  "out": 5.00  },
+            "claude-sonnet-4-5": { "in": 3.00,  "out": 15.00 },
+            "claude-opus-4":     { "in": 15.00, "out": 75.00 },
+            "gpt-4o":            { "in": 2.50,  "out": 10.00 },
+            "gpt-4o-mini":       { "in": 0.15,  "out": 0.60  }
+          },
+          "description": "Price per 1M tokens ($USD), keyed by model id. Extend as needed."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.80.0",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0"
+  },
+  "extensionKind": ["ui", "workspace"]
+}

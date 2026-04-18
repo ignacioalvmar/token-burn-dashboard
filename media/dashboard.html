@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="{{CSP}}" />
+<title>Token Burn</title>
+<link rel="stylesheet" href="{{CODICON_CSS}}" />
+<link rel="stylesheet" href="{{CSS}}" />
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <i class="codicon codicon-flame"></i>
+    <span class="title">Token Burn</span>
+    <span class="sub" id="source-label">connecting…</span>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab on" data-tab="live"><i class="codicon codicon-pulse"></i> Live</button>
+    <button class="tab" data-tab="history"><i class="codicon codicon-list-flat"></i> History</button>
+    <button class="tab" data-tab="summary"><i class="codicon codicon-graph"></i> Session summary</button>
+    <button class="tab" data-tab="settings"><i class="codicon codicon-settings-gear"></i> Settings</button>
+  </div>
+  <div class="topbar-right">
+    <div class="seg">
+      <button class="seg-btn on" data-units="tokens">tokens</button>
+      <button class="seg-btn" data-units="cost">cost</button>
+    </div>
+    <button class="icon-btn" id="btn-refresh" title="Refresh"><i class="codicon codicon-refresh"></i></button>
+    <button class="icon-btn" id="btn-reveal"  title="Reveal log"><i class="codicon codicon-folder-opened"></i></button>
+  </div>
+</div>
+
+<!-- LIVE -->
+<section class="pane pane-live on" data-pane="live">
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-label">Tokens this session</div><div class="kpi-value" id="kpi-tokens">0</div><div class="kpi-sub"><span id="kpi-in">0 in</span> · <span id="kpi-out">0 out</span></div></div>
+    <div class="kpi"><div class="kpi-label">Cost</div><div class="kpi-value accent" id="kpi-cost">$0.00</div><div class="kpi-sub"><span id="kpi-burn">0 tok/s</span></div></div>
+    <div class="kpi"><div class="kpi-label">Turns / Tool calls</div><div class="kpi-value" id="kpi-turns">0 / 0</div><div class="kpi-sub">per-turn avg <span id="kpi-avg">0</span></div></div>
+    <div class="kpi kpi-budget">
+      <div class="kpi-label">Session budget</div>
+      <div class="kpi-value" id="kpi-budget">$0.00 / $2.00</div>
+      <div class="budget-bar"><div class="budget-fill" id="budget-fill"></div></div>
+    </div>
+  </div>
+
+  <div class="live-grid">
+    <div class="card">
+      <div class="card-head"><div class="card-title">Live burn <span class="card-sub">last 2 min</span></div></div>
+      <canvas id="live-canvas" height="160"></canvas>
+      <div class="legend" id="live-legend"></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Event stream <span class="card-sub">newest first</span></div>
+        <span class="pulse"><span class="pulse-dot"></span> live</span>
+      </div>
+      <div class="event-list" id="event-list"></div>
+    </div>
+  </div>
+</section>
+
+<!-- HISTORY -->
+<section class="pane" data-pane="history">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Per-message breakdown</div>
+      <div class="card-sub" id="history-count">0 turns</div>
+    </div>
+    <table class="msg-table">
+      <thead><tr>
+        <th class="num">#</th><th>Prompt</th><th>Model</th>
+        <th class="num">In</th><th class="num">Out</th><th class="num">Tools</th><th class="num">Cost</th>
+      </tr></thead>
+      <tbody id="msg-tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SUMMARY -->
+<section class="pane" data-pane="summary">
+  <div class="summary-hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Session complete</div>
+      <div class="hero-title" id="hero-title">Your session burned <span class="accent" id="hero-tokens">0</span> tokens</div>
+      <div class="hero-sub"><span id="hero-cost">$0.00</span> · <span id="hero-turns">0 turns</span> · <span id="hero-duration">0s</span></div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-stat"><span class="hero-stat-label">Most-used model</span><span class="hero-stat-value" id="hero-model">—</span></div>
+      <div class="hero-stat"><span class="hero-stat-label">Top event type</span><span class="hero-stat-value" id="hero-kind">—</span></div>
+      <div class="hero-stat"><span class="hero-stat-label">Heaviest turn</span><span class="hero-stat-value" id="hero-heavy">—</span></div>
+    </div>
+  </div>
+  <div class="summary-grid">
+    <div class="card">
+      <div class="card-head"><div class="card-title">Tokens by model</div></div>
+      <div id="summary-models"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">Tokens by event type</div></div>
+      <div id="summary-kinds"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">Observations</div></div>
+      <ul class="observations" id="summary-observations"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- SETTINGS -->
+<section class="pane" data-pane="settings">
+  <div class="card">
+    <div class="card-head"><div class="card-title">Configuration</div></div>
+    <div class="settings-grid">
+      <div class="setting">
+        <div class="setting-label">Log source</div>
+        <div class="setting-value"><code id="settings-source">—</code></div>
+      </div>
+      <div class="setting">
+        <div class="setting-label">Log path</div>
+        <div class="setting-value"><code id="settings-path">—</code></div>
+      </div>
+      <div class="setting">
+        <div class="setting-label">Last poll</div>
+        <div class="setting-value"><code id="settings-poll">—</code></div>
+      </div>
+      <div class="setting">
+        <div class="setting-label">Status</div>
+        <div class="setting-value"><span id="settings-status">—</span></div>
+      </div>
+    </div>
+    <div class="settings-actions">
+      <button class="btn" id="btn-open-settings"><i class="codicon codicon-settings-gear"></i> Open VS Code settings…</button>
+      <button class="btn" id="btn-reveal-2"><i class="codicon codicon-folder-opened"></i> Reveal log file</button>
+    </div>
+    <p class="settings-note">
+      Token Burn reads Cursor / VS Code chat logs in <b>read-only</b> mode. No data leaves your machine.
+      Adjust model pricing and budgets under <code>tokenBurn.*</code> in the VS Code settings.
+    </p>
+  </div>
+</section>
+
+<script src="{{JS}}"></script>
+</body>
+</html>
